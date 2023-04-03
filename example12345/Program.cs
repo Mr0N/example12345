@@ -30,6 +30,7 @@ namespace HttpCompletionOptionDemo
                 var response = await client.GetAsync("http://localhost:5000/api/values", HttpCompletionOption.ResponseHeadersRead);
                 string status = response.Headers.GetValues("isOk").First();
                 Console.WriteLine($"Status client:{status}");
+       
                 if (response.IsSuccessStatusCode)
                 {
                     Console.WriteLine($"Good,status client cod {(int)response.StatusCode}");
@@ -37,7 +38,7 @@ namespace HttpCompletionOptionDemo
                 }
                 else
                 {
-                    Console.WriteLine("Bad");
+                    Console.WriteLine($"Bad,status client cod {(int)response.StatusCode}");
                 }
             }
 
@@ -75,7 +76,7 @@ namespace HttpCompletionOptionDemo
         [HttpGet]
         public ActionResult<Message> Get()
         {
-            if (count > 299)
+            if (count > 399)
                 count = 0;
             HttpContext.Response.StatusCode = count++;
             HttpContext.Response.Headers.Add("isOk", count.ToString());
