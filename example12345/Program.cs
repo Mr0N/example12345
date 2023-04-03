@@ -1,89 +1,54 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System;
 
-namespace HttpCompletionOptionDemo
+new MyParaller().Foreach<int>(Enumerable.Range(0, 1000), a =>
 {
-    public class Program
+    Console.WriteLine($"items:{a}  thread:{Thread.CurrentThread.ManagedThreadId}");
+    for (int i = 0; i < int.MaxValue; i++)
     {
-        public static async Task Main(string[] args)
-        {
-            var builder = Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
 
-            using var host = builder.Build();
-            await host.StartAsync();
-
-            for (int i = 0; i < 100; i++)
-            {
-                using var client = new HttpClient();
-                var response = await client.GetAsync("http://localhost:5000/api/values", HttpCompletionOption.ResponseHeadersRead);
-                string status = response.Headers.GetValues("isOk").First();
-                Console.WriteLine($"Status client:{status}");
-       
-                if (response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Good,status client cod {(int)response.StatusCode}");
-
-                }
-                else
-                {
-                    Console.WriteLine($"Bad,status client cod {(int)response.StatusCode}");
-                }
-            }
-
-
-            //Console.WriteLine($"Total bytes read: {totalRead}");
-
-            await host.StopAsync();
-        }
     }
-
-    public class Startup
+}, 5);
+Console.ReadKey();
+class MyParaller
+{
+    public void Foreach<TObj>(IEnumerable<TObj> enumerable, Action<TObj?> func, int countTask)
     {
-        public void ConfigureServices(IServiceCollection services)
+        var query = Slice(enumerable, countTask);
+        var ls = new List<Task>(countTask);
+        foreach (var iCollection in query)
         {
-            services.AddControllers();
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
+            var task = Task.Run(() =>
             {
-                endpoints.MapControllers();
+                foreach (var item in iCollection)
+                {
+                    func.Invoke(item);
+                }
             });
+            ls.Add(task);
         }
+        Task.WaitAll(ls.ToArray());
+        // enumerable.Chunk
     }
-
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ValuesController : ControllerBase
+    private IEnumerable<IEnumerable<TObj>> Slice<TObj>(IEnumerable<TObj> en, int count)
     {
-        static int count = 200;
-        // GET api/values
-        [HttpGet]
-        public ActionResult<Message> Get()
+        var enumerator = en.GetEnumerator();
+        for (int i = 0; i < count; i++)
         {
-            if (count > 399)
-                count = 0;
-            HttpContext.Response.StatusCode = count++;
-            HttpContext.Response.Headers.Add("isOk", count.ToString());
-            Console.WriteLine($"Server send:{count}");
-            return new Message("4343");
-            //throw new Exception();
+            yield return GetPart(enumerator);
+        }
+
+    }
+    private IEnumerable<TObj> GetPart<TObj>(IEnumerator<TObj> en)
+    {
+        while (true)
+        {
+            lock (objLock)
+            {
+                if (!en.MoveNext())
+                    break;
+            }
+            yield return en.Current;
         }
     }
-    public record Message(string messageException);
+    static object objLock = new object();
 }
