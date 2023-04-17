@@ -1,54 +1,39 @@
+using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 
-new MyParaller().Foreach<int>(Enumerable.Range(0, 1000), a =>
+
+
+var lsFirst = new List<Rgb>()
 {
-    Console.WriteLine($"items:{a}  thread:{Thread.CurrentThread.ManagedThreadId}");
-    for (int i = 0; i < int.MaxValue; i++)
+    new Rgb(1,2,3)
+};
+var lsSecond = new Dictionary<string,Rgb>()
+{
+    {"newTag",new Rgb(1,2,3) }
+};
+var result = new Dictionary<Rgb, List<string>>();
+int rangeSize = 10;
+foreach (var item in lsFirst)
+{
+    foreach (var element in lsSecond)
     {
+        var range = GetRange(item, element.Value);
+        if(range > 10)
+        {
+            if (result.TryGetValue(item, out var rs))
+                rs.Add(element.Key);
+            else
+                result.Add(item, new List<string>() { element.Key });
+        }    
 
     }
-}, 5);
-Console.ReadKey();
-class MyParaller
-{
-    public void Foreach<TObj>(IEnumerable<TObj> enumerable, Action<TObj?> func, int countTask)
-    {
-        var query = Slice(enumerable, countTask);
-        var ls = new List<Task>(countTask);
-        foreach (var iCollection in query)
-        {
-            var task = Task.Run(() =>
-            {
-                foreach (var item in iCollection)
-                {
-                    func.Invoke(item);
-                }
-            });
-            ls.Add(task);
-        }
-        Task.WaitAll(ls.ToArray());
-        // enumerable.Chunk
-    }
-    private IEnumerable<IEnumerable<TObj>> Slice<TObj>(IEnumerable<TObj> en, int count)
-    {
-        var enumerator = en.GetEnumerator();
-        for (int i = 0; i < count; i++)
-        {
-            yield return GetPart(enumerator);
-        }
+}
 
-    }
-    private IEnumerable<TObj> GetPart<TObj>(IEnumerator<TObj> en)
-    {
-        while (true)
-        {
-            lock (objLock)
-            {
-                if (!en.MoveNext())
-                    break;
-            }
-            yield return en.Current;
-        }
-    }
-    static object objLock = new object();
+double GetRange(Rgb rgbFirst,Rgb rgbSecond)
+{
+    return Math.Sqrt(
+    Math.Pow(rgbFirst.R - rgbSecond.R, 2) +
+    Math.Pow(rgbFirst.B - rgbSecond.B, 2) +
+    Math.Pow(rgbFirst.G - rgbSecond.G, 2));
 }
