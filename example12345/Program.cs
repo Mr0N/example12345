@@ -19,7 +19,7 @@ foreach (var item in lsFirst)
     foreach (var element in lsSecond)
     {
         var range = GetRange(item, element.Value);
-        if(range > 10)
+        if(range > rangeSize)
         {
             if (result.TryGetValue(item, out var rs))
                 rs.Add(element.Key);
