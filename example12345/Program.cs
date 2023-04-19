@@ -28,7 +28,7 @@ foreach (var item in lsFirst)
         }
 
     }
-    if (previewRange > rangeSize && temp != null)
+    if (previewRange >= rangeSize && temp != null)
     {
         if (result.TryGetValue(item, out var rs))
             rs.Add(temp);
