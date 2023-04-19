@@ -44,3 +44,4 @@ double GetRange(Rgb rgbFirst, Rgb rgbSecond)
     Math.Pow(rgbFirst.B - rgbSecond.B, 2) +
     Math.Pow(rgbFirst.G - rgbSecond.G, 2));
 }
+record struct Rgb(byte R,byte B,byte G);
