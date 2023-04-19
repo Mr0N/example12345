@@ -8,7 +8,7 @@ var lsFirst = new List<Rgb>()
 {
     new Rgb(1,2,3)
 };
-var lsSecond = new Dictionary<string,Rgb>()
+var lsSecond = new Dictionary<string, Rgb>()
 {
     {"newTag",new Rgb(1,2,3) }
 };
@@ -16,21 +16,26 @@ var result = new Dictionary<Rgb, List<string>>();
 int rangeSize = 10;
 foreach (var item in lsFirst)
 {
+    double? previewRange = null;
+    string temp = null;
     foreach (var element in lsSecond)
     {
-        var range = GetRange(item, element.Value);
-        if(range > rangeSize)
+        var obj = GetRange(item, element.Value);
+        if (previewRange == null || previewRange > obj)
         {
-            if (result.TryGetValue(item, out var rs))
-                rs.Add(element.Key);
-            else
-                result.Add(item, new List<string>() { element.Key });
-        }    
+            previewRange = obj;
+            temp = element.Key;
+        }
 
     }
+
+    if (result.TryGetValue(item, out var rs))
+        rs.Add(temp);
+    else
+        result.Add(item, new List<string>() { temp });
 }
 
-double GetRange(Rgb rgbFirst,Rgb rgbSecond)
+double GetRange(Rgb rgbFirst, Rgb rgbSecond)
 {
     return Math.Sqrt(
     Math.Pow(rgbFirst.R - rgbSecond.R, 2) +
