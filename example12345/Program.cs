@@ -17,12 +17,12 @@ int rangeSize = 10;
 foreach (var item in lsFirst)
 {
     var obj = GetTagFromRgb(rangeSize, item, lsSecond);
-    if (obj.previewRange >= rangeSize && obj.temp != null)
+    if (obj.previewRange <= rangeSize && obj.tag != null)
     {
         if (result.TryGetValue(item, out var rs))
-            rs.Add(temp);
+            rs.Add(obj.tag);
         else
-            result.Add(item, new List<string>() { temp });
+            result.Add(item, new List<string>() { obj.tag });
     }
 }
 Console.ReadKey();
