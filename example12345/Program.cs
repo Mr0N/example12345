@@ -8,9 +8,9 @@ var lsFirst = new List<Rgb>()
 };
 var lsSecond = new Dictionary<string, Rgb>()
 {
-    {"newTag",new Rgb(1,2,3) },
-    {"newTag1",new Rgb(1,2,3) },
-    {"newTag2",new Rgb(1,2,3) }
+    {"newTag",new Rgb(1,2,6) },
+    {"newTag1",new Rgb(1,2,4) },
+    {"newTag2",new Rgb(1,2,5) }
 };
 var result = new Dictionary<Rgb, List<string>>();
 int rangeSize = 10;
