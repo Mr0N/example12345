@@ -16,6 +16,18 @@ var result = new Dictionary<Rgb, List<string>>();
 int rangeSize = 10;
 foreach (var item in lsFirst)
 {
+    var obj = GetTagFromRgb(rangeSize, item, lsSecond);
+    if (obj.previewRange >= rangeSize && obj.temp != null)
+    {
+        if (result.TryGetValue(item, out var rs))
+            rs.Add(temp);
+        else
+            result.Add(item, new List<string>() { temp });
+    }
+}
+Console.ReadKey();
+(string tag, double? previewRange) GetTagFromRgb(int rangeSize, Rgb item, Dictionary<string, Rgb> lsSecond)
+{
     double? previewRange = null;
     string temp = null;
     foreach (var element in lsSecond)
@@ -26,17 +38,9 @@ foreach (var item in lsFirst)
             previewRange = obj;
             temp = element.Key;
         }
-
     }
-    if (previewRange >= rangeSize && temp != null)
-    {
-        if (result.TryGetValue(item, out var rs))
-            rs.Add(temp);
-        else
-            result.Add(item, new List<string>() { temp });
-    }
+    return (temp, previewRange);
 }
-Console.ReadKey();
 double GetRange(Rgb rgbFirst, Rgb rgbSecond)
 {
     return Math.Sqrt(
