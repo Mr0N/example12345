@@ -28,11 +28,13 @@ foreach (var item in lsFirst)
         }
 
     }
-
-    if (result.TryGetValue(item, out var rs))
-        rs.Add(temp);
-    else
-        result.Add(item, new List<string>() { temp });
+    if (previewRange > rangeSize)
+    {
+        if (result.TryGetValue(item, out var rs))
+            rs.Add(temp);
+        else
+            result.Add(item, new List<string>() { temp });
+    }
 }
 Console.ReadKey();
 double GetRange(Rgb rgbFirst, Rgb rgbSecond)
@@ -42,4 +44,4 @@ double GetRange(Rgb rgbFirst, Rgb rgbSecond)
     Math.Pow(rgbFirst.B - rgbSecond.B, 2) +
     Math.Pow(rgbFirst.G - rgbSecond.G, 2));
 }
-record struct Rgb(byte R,byte B,byte G);
+record struct Rgb(byte R, byte B, byte G);
